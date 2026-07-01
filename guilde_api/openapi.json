@@ -1,0 +1,396 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "La Guilde des Aventuriers - API",
+    "version": "1.0.0",
+    "description": "API de gestion d'une guilde d'aventuriers : guildes, aventuriers, quetes et monstres. Aucune authentification n'est requise, cette API est volontairement hors scope securite (exercice pedagogique)."
+  },
+  "servers": [
+    { "url": "http://localhost:5000", "description": "Serveur de developpement" }
+  ],
+  "tags": [
+    { "name": "Guildes" },
+    { "name": "Aventuriers" },
+    { "name": "Quetes" },
+    { "name": "Monstres" }
+  ],
+  "paths": {
+    "/guildes": {
+      "get": {
+        "tags": ["Guildes"],
+        "summary": "Lister les guildes",
+        "responses": {
+          "200": {
+            "description": "Liste des guildes",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Guilde" } } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Guildes"],
+        "summary": "Creer une guilde",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GuildeInput" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Guilde creee",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Guilde" } } }
+          },
+          "400": { "description": "Nom manquant ou deja utilise", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/guildes/{guilde_id}": {
+      "get": {
+        "tags": ["Guildes"],
+        "summary": "Recuperer une guilde (avec ses aventuriers)",
+        "parameters": [ { "$ref": "#/components/parameters/GuildeId" } ],
+        "responses": {
+          "200": { "description": "Guilde trouvee", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GuildeDetail" } } } },
+          "404": { "description": "Guilde introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Guildes"],
+        "summary": "Modifier une guilde",
+        "parameters": [ { "$ref": "#/components/parameters/GuildeId" } ],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GuildeInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Guilde mise a jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Guilde" } } } },
+          "404": { "description": "Guilde introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Guildes"],
+        "summary": "Supprimer une guilde (et ses aventuriers, en cascade)",
+        "parameters": [ { "$ref": "#/components/parameters/GuildeId" } ],
+        "responses": {
+          "204": { "description": "Guilde supprimee" },
+          "404": { "description": "Guilde introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/aventuriers": {
+      "get": {
+        "tags": ["Aventuriers"],
+        "summary": "Lister les aventuriers",
+        "description": "Le parametre with_guilde=1 inclut la guilde de chaque aventurier, chargee via selectinload pour eviter le probleme du N+1.",
+        "parameters": [
+          { "name": "with_guilde", "in": "query", "required": false, "schema": { "type": "string", "enum": ["1"] }, "description": "Passer 1 pour inclure la guilde de chaque aventurier" }
+        ],
+        "responses": {
+          "200": { "description": "Liste des aventuriers", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Aventurier" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Aventuriers"],
+        "summary": "Creer un aventurier",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AventurierInput" } } }
+        },
+        "responses": {
+          "201": { "description": "Aventurier cree", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Aventurier" } } } },
+          "400": { "description": "Champ manquant ou guilde_id invalide", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/aventuriers/{aventurier_id}": {
+      "get": {
+        "tags": ["Aventuriers"],
+        "summary": "Recuperer un aventurier (avec sa guilde et ses quetes)",
+        "parameters": [ { "$ref": "#/components/parameters/AventurierId" } ],
+        "responses": {
+          "200": { "description": "Aventurier trouve", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AventurierDetail" } } } },
+          "404": { "description": "Aventurier introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Aventuriers"],
+        "summary": "Modifier un aventurier",
+        "parameters": [ { "$ref": "#/components/parameters/AventurierId" } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AventurierInput" } } } },
+        "responses": {
+          "200": { "description": "Aventurier mis a jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Aventurier" } } } },
+          "400": { "description": "guilde_id invalide", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Aventurier introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Aventuriers"],
+        "summary": "Supprimer un aventurier",
+        "parameters": [ { "$ref": "#/components/parameters/AventurierId" } ],
+        "responses": {
+          "204": { "description": "Aventurier supprime" },
+          "404": { "description": "Aventurier introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quetes": {
+      "get": {
+        "tags": ["Quetes"],
+        "summary": "Lister les quetes",
+        "responses": {
+          "200": { "description": "Liste des quetes", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Quete" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Quetes"],
+        "summary": "Creer une quete",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QueteInput" } } } },
+        "responses": {
+          "201": { "description": "Quete creee", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Quete" } } } },
+          "400": { "description": "Titre manquant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quetes/{quete_id}": {
+      "get": {
+        "tags": ["Quetes"],
+        "summary": "Recuperer une quete (avec aventuriers et monstres)",
+        "parameters": [ { "$ref": "#/components/parameters/QueteId" } ],
+        "responses": {
+          "200": { "description": "Quete trouvee", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QueteDetail" } } } },
+          "404": { "description": "Quete introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Quetes"],
+        "summary": "Modifier une quete",
+        "parameters": [ { "$ref": "#/components/parameters/QueteId" } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QueteInput" } } } },
+        "responses": {
+          "200": { "description": "Quete mise a jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Quete" } } } },
+          "404": { "description": "Quete introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Quetes"],
+        "summary": "Supprimer une quete (et ses monstres, en cascade)",
+        "parameters": [ { "$ref": "#/components/parameters/QueteId" } ],
+        "responses": {
+          "204": { "description": "Quete supprimee" },
+          "404": { "description": "Quete introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quetes/{quete_id}/aventuriers/{aventurier_id}": {
+      "post": {
+        "tags": ["Quetes"],
+        "summary": "Assigner un aventurier a une quete",
+        "parameters": [
+          { "$ref": "#/components/parameters/QueteId" },
+          { "$ref": "#/components/parameters/AventurierId" }
+        ],
+        "responses": {
+          "201": { "description": "Aventurier assigne", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QueteDetail" } } } },
+          "400": { "description": "Deja assigne, ou quete terminee", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Quete ou aventurier introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Quetes"],
+        "summary": "Retirer un aventurier d'une quete",
+        "parameters": [
+          { "$ref": "#/components/parameters/QueteId" },
+          { "$ref": "#/components/parameters/AventurierId" }
+        ],
+        "responses": {
+          "204": { "description": "Aventurier retire" },
+          "400": { "description": "L'aventurier ne participe pas a cette quete", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Quete ou aventurier introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/quetes/{quete_id}/cloturer": {
+      "post": {
+        "tags": ["Quetes"],
+        "summary": "Cloturer une quete et distribuer la reputation",
+        "description": "Chaque guilde ayant au moins un aventurier participant recoit un bonus de reputation egal a la recompense de la quete. Une quete deja terminee, ou sans participant, ne peut pas etre cloturee.",
+        "parameters": [ { "$ref": "#/components/parameters/QueteId" } ],
+        "responses": {
+          "200": { "description": "Quete cloturee", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ClotureResponse" } } } },
+          "400": { "description": "Quete deja terminee ou sans participant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Quete introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/monstres": {
+      "get": {
+        "tags": ["Monstres"],
+        "summary": "Lister les monstres",
+        "responses": {
+          "200": { "description": "Liste des monstres", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Monstre" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Monstres"],
+        "summary": "Creer un monstre",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MonstreInput" } } } },
+        "responses": {
+          "201": { "description": "Monstre cree", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Monstre" } } } },
+          "400": { "description": "Champ manquant ou quete_id invalide", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/monstres/{monstre_id}": {
+      "get": {
+        "tags": ["Monstres"],
+        "summary": "Recuperer un monstre",
+        "parameters": [ { "$ref": "#/components/parameters/MonstreId" } ],
+        "responses": {
+          "200": { "description": "Monstre trouve", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Monstre" } } } },
+          "404": { "description": "Monstre introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "tags": ["Monstres"],
+        "summary": "Modifier un monstre",
+        "parameters": [ { "$ref": "#/components/parameters/MonstreId" } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MonstreInput" } } } },
+        "responses": {
+          "200": { "description": "Monstre mis a jour", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Monstre" } } } },
+          "400": { "description": "quete_id invalide", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Monstre introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Monstres"],
+        "summary": "Supprimer un monstre",
+        "parameters": [ { "$ref": "#/components/parameters/MonstreId" } ],
+        "responses": {
+          "204": { "description": "Monstre supprime" },
+          "404": { "description": "Monstre introuvable", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "GuildeId": { "name": "guilde_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+      "AventurierId": { "name": "aventurier_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+      "QueteId": { "name": "quete_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+      "MonstreId": { "name": "monstre_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": { "error": { "type": "string" } }
+      },
+      "Guilde": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nom": { "type": "string" },
+          "reputation": { "type": "integer" }
+        }
+      },
+      "GuildeInput": {
+        "type": "object",
+        "required": ["nom"],
+        "properties": {
+          "nom": { "type": "string" },
+          "reputation": { "type": "integer", "default": 0 }
+        }
+      },
+      "GuildeDetail": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Guilde" },
+          { "type": "object", "properties": { "aventuriers": { "type": "array", "items": { "$ref": "#/components/schemas/Aventurier" } } } }
+        ]
+      },
+      "Aventurier": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nom": { "type": "string" },
+          "classe": { "type": "string" },
+          "niveau": { "type": "integer" },
+          "guilde_id": { "type": "integer" }
+        }
+      },
+      "AventurierInput": {
+        "type": "object",
+        "required": ["nom", "classe", "guilde_id"],
+        "properties": {
+          "nom": { "type": "string" },
+          "classe": { "type": "string" },
+          "niveau": { "type": "integer", "default": 1 },
+          "guilde_id": { "type": "integer" }
+        }
+      },
+      "AventurierDetail": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Aventurier" },
+          {
+            "type": "object",
+            "properties": {
+              "guilde": { "type": "object", "properties": { "id": { "type": "integer" }, "nom": { "type": "string" } } },
+              "quetes": { "type": "array", "items": { "$ref": "#/components/schemas/Quete" } }
+            }
+          }
+        ]
+      },
+      "Quete": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "titre": { "type": "string" },
+          "difficulte": { "type": "string" },
+          "recompense": { "type": "integer" },
+          "terminee": { "type": "boolean" }
+        }
+      },
+      "QueteInput": {
+        "type": "object",
+        "required": ["titre"],
+        "properties": {
+          "titre": { "type": "string" },
+          "difficulte": { "type": "string", "default": "normale" },
+          "recompense": { "type": "integer", "default": 0 }
+        }
+      },
+      "QueteDetail": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Quete" },
+          {
+            "type": "object",
+            "properties": {
+              "aventuriers": { "type": "array", "items": { "$ref": "#/components/schemas/Aventurier" } },
+              "monstres": { "type": "array", "items": { "$ref": "#/components/schemas/Monstre" } }
+            }
+          }
+        ]
+      },
+      "Monstre": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nom": { "type": "string" },
+          "puissance": { "type": "integer" },
+          "quete_id": { "type": "integer" }
+        }
+      },
+      "MonstreInput": {
+        "type": "object",
+        "required": ["nom", "quete_id"],
+        "properties": {
+          "nom": { "type": "string" },
+          "puissance": { "type": "integer", "default": 1 },
+          "quete_id": { "type": "integer" }
+        }
+      },
+      "ClotureResponse": {
+        "type": "object",
+        "properties": {
+          "quete": { "$ref": "#/components/schemas/Quete" },
+          "guildes_recompensees": { "type": "array", "items": { "$ref": "#/components/schemas/Guilde" } }
+        }
+      }
+    }
+  }
+}

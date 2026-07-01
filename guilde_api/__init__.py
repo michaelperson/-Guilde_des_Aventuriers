@@ -22,15 +22,21 @@ def create_app(config_class=Config):
     from .routes.aventuriers import aventuriers_bp
     from .routes.quetes import quetes_bp
     from .routes.monstres import monstres_bp
+    from .routes.docs import docs_bp
 
     app.register_blueprint(guildes_bp)
     app.register_blueprint(aventuriers_bp)
     app.register_blueprint(quetes_bp)
     app.register_blueprint(monstres_bp)
+    app.register_blueprint(docs_bp)
 
     @app.route("/")
     def index():
-        return {"message": "API de la Guilde des Aventuriers", "status": "ok"}
+        return {
+            "message": "API de la Guilde des Aventuriers",
+            "status": "ok",
+            "documentation": "/docs",
+        }
 
     @app.errorhandler(404)
     def not_found(_error):

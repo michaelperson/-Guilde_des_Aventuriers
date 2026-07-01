@@ -54,6 +54,8 @@ guilde_aventuriers_api/
       aventuriers.py
       quetes.py
       monstres.py
+      docs.py
+    openapi.json
   tests/
     conftest.py
     test_api.py
@@ -104,6 +106,29 @@ réputation égal à la récompense de la quête (montant fixe, pas une part
 proportionnelle au nombre de participants). Une quête déjà terminée ne
 peut pas être clôturée à nouveau, pour ne pas distribuer la récompense
 en double. Une quête sans participant ne peut pas être clôturée.
+
+## Documentation interactive (Scalar)
+
+La spécification OpenAPI 3.0 complète de l'API est servie brute sur
+`GET /openapi.json`, et une documentation interactive construite avec
+[Scalar](https://scalar.com) est disponible sur `GET /docs` une fois le
+serveur lancé (`http://localhost:5000/docs`).
+
+L'intégration ne demande aucune dépendance Python supplémentaire :
+`docs.py` expose la spec statique, et la page `/docs` charge le
+composant Scalar directement depuis un CDN dans le navigateur :
+
+```html
+<script id="api-reference" data-url="/openapi.json"></script>
+<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+```
+
+La spec (`guilde_api/openapi.json`) couvre les dix routes de l'API, les
+schémas de requête et de réponse pour chaque ressource, ainsi que les
+cas d'erreur (400/404). Elle a été validée avec
+`openapi-spec-validator` avant livraison. Si un endpoint est ajouté ou
+modifié, il faut mettre à jour ce fichier à la main : il n'y a pas de
+génération automatique depuis le code des routes dans cette version.
 
 ## Exemples curl
 

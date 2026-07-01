@@ -1,5 +1,46 @@
+# Byte-compiled / cache
 __pycache__/
-*.pyc
-.pytest_cache/
-instance/*.db
+*.py[cod]
+*$py.class
+
+# Environnements virtuels
 .venv/
+venv/
+env/
+ENV/
+
+# Variables d'environnement locales (jamais commitees : secrets, DB_URL...)
+.env
+.env.*
+!.env.example
+
+# Base de donnees SQLite generee localement (seed.py / usage normal de l'app)
+instance/*.db
+instance/*.db-journal
+instance/*.sqlite
+instance/*.sqlite3
+
+# Tests et couverture
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Outils de type checking / lint (si ajoutes plus tard)
+.mypy_cache/
+.ruff_cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Editeurs / IDE
+.vscode/
+.idea/
+*.swp
+
+# Fichiers systeme
+.DS_Store
+Thumbs.db
